@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymepleaf.org/extras/spring-security">
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"
+        integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"
+        integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+<link href="  https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+        crossorigin="anonymous"></script>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>AdminPage</title>
+    <script>
+        function deleteMember(button){
+            let id = button.parentNode.parentNode.querySelector('.userId').textContent;
+            if (confirm('정말 삭제하시겠습니까?')) {
+                $.ajax({
+                    url: "/deleteByAdmin",
+                    method: "GET",
+                    data: {"userId": id},
+                    success: function () {
+						alert('삭제 완료!');
+                        location.reload()
+                    }
+                });
+            }
+        };
+
+		// 게시글 삭제를 위한.. 버튼을 눌렀을때~
+        $(document).ready(function () {
+	        $(".deleteBoard").on("click", function () {
+		        let boardNo = $(this).val();
+		        deleteBoard(boardNo);
+	        })
+        });
+		// 게시글 삭제
+        function deleteBoard(boardNo){
+	        if (confirm('정말 삭제하시겠습니까?')) {
+		        $.ajax({
+			        url: "/deleteBoard",
+			        method: "GET",
+			        data: {"boardNo": boardNo},
+			        success: function () {
+				        alert("뿡");
+				        location.reload()
+			        }
+		        });
+	        }
+        };
+
+		// 회원 활성/비활성 수정
+        function updateMember(button){
+	        let row = button.closest("tr");
+	        let id = row.querySelector(".userId").textContent;
+	        let enabledSelect = row.querySelector(".enabled-select");
+	        let enabled = enabledSelect.value === "true";
+
+	        if (confirm('정말 수정하시겠습니까?')) {
+		        $.ajax({
+			        url: "/updateByAdmin",
+			        method: "GET",
+			        data: {"userId": id, "enabled": enabled},
+			        success: function () {
+						alert("수정 완료!");
+				        location.reload();
+			        }
+		        });
+	        }
+        };
+
+        function toggleData(buttonId) {
+            let dataDiv = document.getElementById(buttonId + '-data');
+            if (dataDiv.style.display === 'none') {
+                dataDiv.style.display = 'block';
+            } else {
+                dataDiv.style.display = 'none';
+            }
+        }
+
+    </script>
+    <style>
+        .data {
+            display: none;
+        }
+        table {
+            width: 100%;
+        }
+
+        tr, th {
+            text-align: center;
+            border-bottom: 1px solid gray;
+            padding: 5px;
+        }
+
+        td {
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 상단바 -->
+<div class="container">
+    <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+        <div class="col-md-3 mb-2 mb-md-0">
+            <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+                <img src="img/logo.png" width="190" height="132" alt="">
+            </a>
+        </div>
+        <div class="col-md-3 text-end">
+            <p sec:authorize="isAuthenticated()">
+                <span sec:authentication="name"></span>님 어서오세요!<br>
+            </p>
+            <button sec:authorize="not isAuthenticated()" type="button" class="btn btn-outline me-2"
+                    onclick="location.href = 'login'">Login
+            </button>
+            <button sec:authorize="not isAuthenticated()" type="button" class="btn btn-primary"
+                    onclick="location.href = 'join'">Sign-up
+            </button>
+            <button sec:authorize="isAuthenticated()" type="button" class="btn btn-primary"
+                    onclick="location.href = 'logout'">Log-out
+            </button>
+        </div>
+    </header>
+
+    <!-- 전체 -->
+    <div class="d-flex flex-row justify" style="padding: 50px;">
+        <!-- 사이드바 -->
+        <div class="d-flex flex-column flex-shrink-0 p-3 sticky-top"
+             style="width: 280px; background-color: #CCCCCC; border-radius: 10px;">
+            <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                <svg class="bi pe-none me-2" width="40" height="32">
+                    <use xlink:href="#bootstrap"></use>
+                </svg>
+                <span class="fs-4">관리자 페이지</span>
+            </a>
+            <hr>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="/adminManage" class="nav-link link-body-emphasis" aria-current="page">
+                        <svg class="bi pe-none me-2" width="16" height="16">
+                            <use xlink:href="#home"></use>
+                        </svg>
+                        회원 관리
+                    </a>
+                </li>
+                <li>
+                    <a href="/adminManageBoard" class="nav-link link-body-emphasis">
+                        <svg class="bi pe-none me-2" width="16" height="16">
+                            <use xlink:href="#speedometer2"></use>
+                        </svg>
+                        게시글 관리
+                    </a>
+                </li>
+            </ul>
+            <hr>
+        </div>
+
+        <div class="row g-5 w-100 "style="padding-left: 20px">
+            <div class="col-md-7 col-lg-12 mx-auto" style="padding-top: 20px">
+                <hr  class="my-hr3">
+                <div> <!--회원 관리-->
+                    <p> <b>전체 회원수 :</b> <span th:text="${#lists.size(members)}"></span></p>
+                    <span><b>회원 정보:</b></span>
+
+                    <table id = "UserList" >
+                        <tr>
+                            <th>번호</th>
+                            <th>아이디</th>
+                            <th>닉네임</th>
+                            <th>가입일</th>
+                            <th>이메일 인증 여부</th>
+                            <th>활성/비활성화</th>
+                            <th>수정</th>
+                            <th>회원 탈퇴</th>
+                        </tr>
+
+                        <tr th:each = "member:${members}"  style="text-align: center;">
+                            <td th:text = "${member.userNo}"></td>
+                            <td th:text = "${member.userId}" class="userId"></td>
+                            <td th:text = "${member.userNickname}"></td>
+                            <td th:text = "${member.regDate}"></td>
+                            <td th:text = "${member.userEmailYn} ? '인증' : '미인증'"></td>
+                            <td>
+
+                                <select class="enabled-select" th:model="${member.enabled}">
+                                    <option value="true" th:text="'활성'" th:selected="${member.enabled}"></option>
+                                    <option value="false" th:text="'비활성'" th:selected="!${member.enabled}"></option>
+                                </select>
+                            </td>
+                            <td>
+                                <button class="updateMember" type="button" onclick="updateMember(this)">수정</button>
+                            </td>
+                            <td>
+                                <button class="deleteMember" type="button" onclick="javascript:deleteMember(this)">회원 탈퇴</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
